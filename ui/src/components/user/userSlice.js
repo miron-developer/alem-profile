@@ -11,12 +11,14 @@ export const userSlice = createSlice({
     transactionUps: {},
     transactionDowns: {},
     transactionXPs: {},
+    transactionPiscines: [],
     xpAmount: 0,
     auditDownAmount: 0,
     auditUpAmount: 0,
     auditDownCount: 0,
     auditUpCount: 0,
     xpCount: 0,
+    level: 0,
 
     /**
      * -3 - loading transaction error
@@ -49,12 +51,16 @@ export const userSlice = createSlice({
       if (a.type === "up") state.transactionUps = a.transactions;
       else if (a.type === "down") state.transactionDowns = a.transactions;
       else if (a.type === "xp") state.transactionXPs = a.transactions;
+      else if (a.type === "piscine")
+        state.transactionPiscines.push(...a.transactions);
       else state.transactions.push(...a.transactions);
     },
     clearTransactions: (state, action) => {
       if (action.payload.type === "up") state.transactionUps = {};
       else if (action.payload.type === "down") state.transactionDowns = {};
       else if (action.payload.type === "xp") state.transactionXPs = {};
+      else if (action.payload.type === "piscine")
+        state.transactionPiscines = [];
       else state.transactions = [];
     },
     clearAllTransactions: (state) => {
@@ -62,6 +68,7 @@ export const userSlice = createSlice({
       state.transactionUps = {};
       state.transactionDowns = {};
       state.transactionXPs = {};
+      state.transactionPiscines = [];
     },
     setAmount: (state, action) => {
       if (action.payload.type === "up")
@@ -87,6 +94,9 @@ export const userSlice = createSlice({
       state.auditDownCount = 0;
       state.xpCount = 0;
     },
+    setLevel: (state, action) => {
+      state.level = action.payload.level;
+    },
     clearUserAllInfo: (state) => {
       state.userInfo = {
         id: -1,
@@ -97,6 +107,7 @@ export const userSlice = createSlice({
       state.transactionUps = {};
       state.transactionDowns = {};
       state.transactionXPs = {};
+      state.transactionPiscines = [];
 
       state.auditUpAmount = 0;
       state.auditDownAmount = 0;
@@ -105,6 +116,8 @@ export const userSlice = createSlice({
       state.auditUpCount = 0;
       state.auditDownCount = 0;
       state.xpCount = 0;
+
+      state.level = 0;
 
       state.loadingState = 0;
     },
@@ -122,6 +135,7 @@ export const {
   clearAmounts,
   setCount,
   clearCounts,
+  setLevel,
   clearUserAllInfo,
 } = userSlice.actions;
 

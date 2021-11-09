@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { AnimateWord, StopAnimation } from "utils/effects";
+import { RandomKey, ReadableCount } from "utils/content";
 
 import { setLoadingState } from "./userSlice";
 import { GetTransactions } from "./transactions";
@@ -12,7 +13,7 @@ import XPPerProject from "./xp-per-project/project";
 import styled from "styled-components";
 
 const SUser = styled.div`
-  min-height: 80vh;
+  min-height: 100vh;
   height: 100%;
   background: url("/user-bg.jpg");
   background-repeat: no-repeat;
@@ -39,6 +40,29 @@ const SUser = styled.div`
 
   .info {
     height: 100%;
+
+    .detailed-info {
+      padding: 1rem;
+
+      .general-info,
+      .piscines {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .info-item {
+        padding: 1rem;
+        margin: 1rem;
+        background: #93939366;
+        border-radius: 5px;
+        box-shadow: 5px 5px 3px 0 #00000047;
+      }
+
+      .piscine-item.info-item {
+        display: flex;
+        flex-direction: column;
+      }
+    }
 
     .user-info {
       margin: 1rem;
@@ -81,9 +105,14 @@ const GNotifications = ({ loadingState }) => {
 };
 
 export default function User() {
-  const { userInfo, transactions, loadingState, xpAmount } = useSelector(
-    (state) => state.user
-  );
+  const {
+    userInfo,
+    transactions,
+    loadingState,
+    xpAmount,
+    level,
+    transactionPiscines,
+  } = useSelector((state) => state.user);
 
   const dispatch = useDispatch();
 
@@ -119,9 +148,35 @@ export default function User() {
         </h3>
 
         <div className="detailed-info">
-          <span>Login: {userInfo.login}</span>
-          <span>ID: {userInfo.id}</span>
-          <span>XP: {xpAmount}</span>
+          <div className="general-info">
+            <div className="info-item">
+              <span>Login: {userInfo.login}</span>
+            </div>
+
+            <div className="info-item">
+              <span>ID: {userInfo.id}</span>
+            </div>
+
+            <div className="info-item">
+              <span>XP: {ReadableCount(xpAmount)}B</span>
+            </div>
+
+            <div className="info-item">
+              <span>Level: {level}</span>
+            </div>
+          </div>
+
+          <div className="piscines">
+            {transactionPiscines.map((p) => {
+              console.log(p);
+              return (
+                <div key={RandomKey()} className="piscine-item info-item">
+                  <span>{p.object.name}</span>
+                  <span>XP: {ReadableCount(p.amount)}B</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <AuditRatio />

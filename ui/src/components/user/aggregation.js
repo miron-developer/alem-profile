@@ -1,6 +1,7 @@
 import {
   setAmount,
   setCount,
+  setLevel,
   setLoadingState,
   setTransactions,
 } from "./userSlice";
@@ -9,6 +10,7 @@ const aggregateByType = (transactions = []) => {
   const ups = [];
   const downs = [];
   const xps = [];
+  const piscines = [];
 
   transactions.forEach((t, i) => {
     if (t.object.type !== "project" && t.object.type !== "piscine") {
@@ -24,6 +26,7 @@ const aggregateByType = (transactions = []) => {
     }
 
     if (t.object.type === "piscine") {
+      piscines.push(t);
       return xps.push(t);
     }
 
@@ -41,6 +44,7 @@ const aggregateByType = (transactions = []) => {
     ups,
     downs,
     xps,
+    piscines,
   };
 };
 
@@ -77,10 +81,22 @@ const getCount = (transactions = {}) => {
   return c;
 };
 
+// total xp needed for this level
+const totalXPForLevel = (level) =>
+  Math.round((level * 0.66 + 1) * ((level + 2) * 150 + 50));
+
+// cumul of all the xp needed to reach this level
+const cumulXpForLevel = (level) =>
+  level > 0 ? totalXPForLevel(level) + cumulXpForLevel(level - 1) : 0;
+
+// level reached for this xp
+const getLevelFromXp = (xp, level = 0) =>
+  cumulXpForLevel(level) >= xp ? level : getLevelFromXp(xp, level + 1);
+
 export const AggregationUserInfo = async (transactions = [], dispatch) => {
   const allT = [];
   transactions.forEach((t) => allT.push(...t));
-  const { ups, downs, xps } = aggregateByType(allT);
+  const { ups, downs, xps, piscines } = aggregateByType(allT);
 
   const [aggrUps, aggrDowns, aggrXPs] = await Promise.all([
     aggregateByProject(ups, false),
@@ -100,9 +116,12 @@ export const AggregationUserInfo = async (transactions = [], dispatch) => {
     (async () => getCount(aggrXPs))(),
   ]);
 
+  const lvl = getLevelFromXp(xpAmount);
+
   dispatch(setTransactions({ transactions: aggrXPs, type: "xp" }));
   dispatch(setTransactions({ transactions: aggrDowns, type: "down" }));
   dispatch(setTransactions({ transactions: aggrUps, type: "up" }));
+  dispatch(setTransactions({ transactions: piscines, type: "piscine" }));
 
   dispatch(setAmount({ amount: xpAmount, type: "xp" }));
   dispatch(setAmount({ amount: downAmount, type: "down" }));
@@ -111,6 +130,8 @@ export const AggregationUserInfo = async (transactions = [], dispatch) => {
   dispatch(setCount({ count: xpCount, type: "xp" }));
   dispatch(setCount({ count: downCount, type: "down" }));
   dispatch(setCount({ count: upCount, type: "up" }));
+
+  dispatch(setLevel({ level: lvl }));
 
   dispatch(setLoadingState({ state: 5 }));
 };

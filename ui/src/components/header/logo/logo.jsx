@@ -1,8 +1,10 @@
 import styled from "styled-components";
 
 const SLogo = styled.div`
-  max-width: 10rem;
-  max-height: 10rem;
+  max-width: 5rem;
+  max-height: 5rem;
+  border-radius: 50%;
+  overflow: hidden;
 
   img {
     width: 100%;
