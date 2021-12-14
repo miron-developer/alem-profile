@@ -19,6 +19,7 @@ const SUser = styled.div`
   background-repeat: no-repeat;
   background-size: cover;
   background-position: 50%;
+  background-attachment: fixed;
 
   &.user-center {
     display: flex;
